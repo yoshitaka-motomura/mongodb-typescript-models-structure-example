@@ -66,3 +66,10 @@ const db = await connection('mongodb_url')
 const user = new User(db)
 const users = await user.fetchAll() // get all users
 ```
+
+## Tests
+```bash
+$ npm test
+// watch mode
+$ npm run test:watch
+```
