@@ -57,10 +57,11 @@ export abstract class AppModel<T extends Document>
    */
   async findById(id: string): Promise<T | null> {
     try {
-      const result = (await this.collection.findOne({
-        _id: new ObjectId(id),
-      } as Filter<T & Document>)) as T | null
-      return result
+      const filter: Filter<T & Document> = { _id: new ObjectId(id) } as Filter<
+        T & Document
+      >
+      const result = await this.collection.findOne(filter)
+      return result as T | null
     } catch (error) {
       return null
     }
