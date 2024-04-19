@@ -5,6 +5,17 @@
 This repository is a sample of the structure of defining a mongodb model in typescript.
 The module used is `node-mongodb-native`.
 
+## Documentation
+[Docs](https://yoshitaka-motomura.github.io/mongodb-typescript-models-structure-example/)
+
+---
+### References
+- [node-mongodb-native](https://mongodb.github.io/node-mongodb-native/4.0/)
+- [jest](https://jestjs.io/docs/getting-started)
+- [typescript](https://www.typescriptlang.org/docs/)
+- [mongodb](https://docs.mongodb.com/)
+
+
 ## Features
 - [x] create <br>
   Create a new document in the collection.
