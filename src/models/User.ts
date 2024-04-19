@@ -34,15 +34,8 @@ export const Schema = {
 }
 
 export class User extends AppModel<UserI> {
+  static collectionName = 'users'
   constructor(db: Db) {
-    super(db, 'users')
-    //this.createIndex()
+    super(db)
   }
-  // TODO: Implement the createIndex method
-  // private async createIndex(): Promise<void> {
-  //   const indexExists = await this.collection.indexExists('email_1')
-  //   if (!indexExists) {
-  //     await this.collection.createIndex({ email: 1 }, { unique: true })
-  //   }
-  // }
 }

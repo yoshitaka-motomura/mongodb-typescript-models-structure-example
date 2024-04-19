@@ -24,9 +24,9 @@ The module used is `node-mongodb-native`.
   Find a document by ObjectId
 - [x] fetchAll <br>
   Fetch all documents in the collection.
-- [ ] delete <br>
+- [x] delete <br>
   Delete a document by ObjectId
-- [ ] destroy <br>
+- [x] destroy <br>
   Delete all documents in the collection.
 - [x] update <br>
   Update a document by ObjectId
@@ -38,12 +38,6 @@ The module used is `node-mongodb-native`.
 - jest
 - typescript
 - node-mongodb-native
-
-## Installation
-```bash
-$ git clone
-$ npm install
-```
 
 ## Usage
 ```typescript
@@ -58,11 +52,27 @@ export interface IUser {
   updatedAt: Date
 }
 
+/**
+* As is often the case with ORMs, if the collection name is defined in the 
+* singular, it is used for the usrs collection.
+* E.g. User -> users
+**/
 export class User extends AppModel<IUser> {
   constructor(db: Db) {
-    super(db, 'users')
+    super(db)
   }
 }
+
+// If you want to use a collection with a different name than the model name,
+// define a `static collectionName` property in the model.
+
+export class User extends AppModel<IUser> {
+  static collectionName = 'members'
+  constructor(db: Db) {
+    super(db)
+  }
+}
+
 
 // E.g main.ts
 

@@ -9,7 +9,7 @@ import {
   MatchKeysAndValues,
 } from 'mongodb'
 import { BaseModelInterface } from './interface'
-
+import pluralize from 'pluralize'
 /**
  * Abstract class representing an application model.
  * @template T - The type of the document.
@@ -17,13 +17,15 @@ import { BaseModelInterface } from './interface'
 export abstract class AppModel<T extends Document>
   implements BaseModelInterface<T>
 {
+  // The collection to interact with.
   protected collection: Collection<T & Document>
-  /**
-   * Constructs a new instance of the AppModel class.
-   * @param db - The database connection.
-   * @param collectionName - The name of the collection.
-   */
-  constructor(db: Db, collectionName: string) {
+  public static collectionName: string
+
+  constructor(db: Db) {
+    const className = this.constructor.name.toLocaleLowerCase()
+    const collectionName =
+      (this.constructor as typeof AppModel<T>).collectionName ||
+      pluralize(className)
     this.collection = db.collection<T & Document>(collectionName)
   }
 

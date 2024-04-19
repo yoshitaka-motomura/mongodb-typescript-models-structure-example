@@ -1,5 +1,6 @@
 import { MongoClient, Db, ObjectId } from 'mongodb'
 import { User, UserI } from './User'
+import { AppModel } from './AppModel'
 import MockDate from 'mockdate'
 describe('User Model', () => {
   let connection: MongoClient
@@ -12,7 +13,39 @@ describe('User Model', () => {
   afterAll(async () => {
     await connection.close()
   })
+  describe('model initialization', () => {
+    it('should initialize the collection with the correct name', () => {
+      const expectedCollectionName = 'users'
+      class User extends AppModel<any> {
+        static collectionName = 'users'
+        constructor(db: Db) {
+          super(db)
+        }
+      }
 
+      // Act
+      const userModel = new User(db)
+
+      // Assert
+      expect(userModel['collection'].collectionName).toBe(
+        expectedCollectionName,
+      )
+    })
+
+    it('should initialize the collection with the pluralized class name', () => {
+      class Example extends AppModel<any> {
+        constructor(db: Db) {
+          super(db)
+        }
+      }
+
+      // Act
+      const exampleModel = new Example(db)
+
+      // Assert
+      expect(exampleModel['collection'].collectionName).toBe('examples')
+    })
+  })
   describe('create document', () => {
     it('should insert a doc into collection', async () => {
       //act
