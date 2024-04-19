@@ -121,6 +121,29 @@ describe('User Model', () => {
       //assert
       expect(result).toBeFalsy()
     })
+
+    it('should upsert true insert a new doc', async () => {
+      //arrange
+      const userModel = new User(db)
+      const updateData = {
+        username: 'test2',
+        email: 'aaaaaaa@aaaaaaa',
+      }
+
+      // upsert true upsertedCount = 1になるモック
+      jest.spyOn(userModel['collection'], 'updateOne').mockResolvedValueOnce({
+        upsertedCount: 1,
+        modifiedCount: 0,
+        acknowledged: true,
+        matchedCount: 0,
+        upsertedId: null, // Add the 'upsertedId' property with a value of null
+      })
+
+      //act
+      const result = await userModel.update(documentId, updateData, true)
+      //assert
+      expect(result).toBeTruthy()
+    })
   })
   describe('find tests', () => {
     let documentId: string
