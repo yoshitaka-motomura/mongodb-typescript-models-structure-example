@@ -8,7 +8,7 @@ import {
   WithId,
   MatchKeysAndValues,
 } from 'mongodb'
-import { BaseModelInterface, InsertDataType } from './interface'
+import { BaseModelInterface } from './interface'
 
 /**
  * Abstract class representing an application model.
@@ -37,16 +37,14 @@ export abstract class AppModel<T extends Document>
   ): Promise<T | boolean> {
     try {
       const now = new Date()
-      const insertData: InsertDataType<T> = {
+      const insertData: OptionalUnlessRequiredId<T> = {
         ...data,
         createdAt: now,
         updatedAt: now,
-      }
+      } as unknown as OptionalUnlessRequiredId<T>
 
-      const result = await this.collection.insertOne(
-        insertData as unknown as OptionalUnlessRequiredId<T>,
-      )
-      return result.acknowledged ? (insertData as unknown as T) : false
+      const result = await this.collection.insertOne(insertData)
+      return result.acknowledged ? (insertData as T) : false
     } catch (error) {
       return false
     }

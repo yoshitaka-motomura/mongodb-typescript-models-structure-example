@@ -40,8 +40,3 @@ export interface BaseModelInterface<T> {
   successful (`true`) or not (`false`). */
   destroy(): Promise<boolean>
 }
-
-export type InsertDataType<T> = Omit<T, '_id' | 'createdAt' | 'updatedAt'> & {
-  createdAt: Date
-  updatedAt: Date
-}
