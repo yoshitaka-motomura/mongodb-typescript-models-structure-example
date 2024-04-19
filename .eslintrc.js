@@ -35,5 +35,12 @@ module.exports = {
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-var-requires': 'off',
+      'node/no-unsupported-features/es-syntax': [
+        'error',
+        {
+          version: '>=18.0.0',
+          ignores: ['modules']
+        }
+      ],
     },
   };
