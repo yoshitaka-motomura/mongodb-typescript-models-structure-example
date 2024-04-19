@@ -5,6 +5,8 @@ import {
   Filter,
   OptionalUnlessRequiredId,
   Document,
+  WithId,
+  MatchKeysAndValues,
 } from 'mongodb'
 
 /**
@@ -31,12 +33,10 @@ interface BaseModel<T> {
    * @returns A promise that resolves to an array of all model instances.
    */
   fetchAll(): Promise<T[]>
-}
 
-interface BaseModel<T> {
-  create(data: Omit<T, '_id' | 'createdAt' | 'updatedAt'>): Promise<T | boolean>
-  findById(id: string): Promise<T | null>
-  fetchAll(): Promise<T[]>
+  /* The `update` method in the `AppModel` class is used to update a document in the collection based
+  on the provided ID. Here is a breakdown of its parameters and functionality: */
+  update(id: string, data: T, upsert: boolean): Promise<boolean>
 }
 
 export type InsertData<T> = Omit<T, '_id' | 'createdAt' | 'updatedAt'> & {
@@ -79,7 +79,7 @@ export abstract class AppModel<T extends Document> implements BaseModel<T> {
       const result = await this.collection.insertOne(
         insertData as unknown as OptionalUnlessRequiredId<T>,
       )
-      return result.insertedId ? (insertData as unknown as T) : false
+      return result.acknowledged ? (insertData as unknown as T) : false
     } catch (error) {
       return false
     }
@@ -106,7 +106,41 @@ export abstract class AppModel<T extends Document> implements BaseModel<T> {
    * @returns A promise that resolves to an array of documents or an empty array if an error occurred.
    */
   async fetchAll(): Promise<T[]> {
-    const result = (await this.collection.find().toArray()) || []
+    const result = await this.collection.find().toArray()
     return result as T[]
+  }
+
+  /**
+   * Updates a document in the collection.
+   *
+   * @param id - The ID of the document to update.
+   * @param data - The data to update the document with.
+   * @param upsert - Optional. If set to true, creates a new document if no document matches the ID. Defaults to false.
+   * @returns A promise that resolves to a boolean indicating whether the update was successful.
+   */
+  async update(
+    id: string,
+    data: Partial<Omit<T, '_id' | 'updatedAt' | 'createdAt'>>,
+    upsert: boolean = false,
+  ): Promise<boolean> {
+    try {
+      const now = new Date()
+      const updateData: Partial<Omit<T, '_id' | 'updatedAt' | 'createdAt'>> & {
+        updatedAt: Date
+      } = {
+        ...data,
+        updatedAt: now,
+      }
+
+      const result = await this.collection.updateOne(
+        { _id: new ObjectId(id) as WithId<T & Document>['_id'] },
+        { $set: updateData as unknown as MatchKeysAndValues<T & Document> },
+        { upsert: upsert },
+      )
+      if (upsert && result.upsertedCount) return true
+      return !!result.modifiedCount
+    } catch (error) {
+      return false
+    }
   }
 }

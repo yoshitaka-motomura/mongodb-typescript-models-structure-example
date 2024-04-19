@@ -33,7 +33,6 @@ describe('User Model', () => {
     //act
     const userModel = new User(db)
 
-    // createをエラーになるようにモック化
     jest
       .spyOn(userModel['collection'], 'insertOne')
       .mockImplementationOnce(() => {
@@ -47,6 +46,82 @@ describe('User Model', () => {
     expect(result).toBe(false)
   })
 
+  it('should return false when an error occurs', async () => {
+    // arrange
+    const userModel = new User(db)
+    jest
+      .spyOn(userModel['collection'], 'insertOne')
+      .mockRejectedValueOnce({ acknowledged: false })
+
+    // act
+    const result = await userModel.create({
+      username: 'test_user',
+      email: 'test@example.com',
+    })
+
+    // assert
+    expect(result).toBe(false)
+  })
+  describe('collection update tests', () => {
+    let documentId: string
+    const item = {
+      username: 'test',
+      email: 'test@example.com',
+    }
+    beforeEach(async () => {
+      const d = await db.collection('users').insertOne(item)
+      if (!d.insertedId) throw new Error('documentId not found')
+      documentId = d.insertedId.toString()
+    })
+    afterEach(async () => {
+      await db.collection('users').deleteMany({})
+    })
+    it('should update a doc', async () => {
+      //arrange
+      const userModel = new User(db)
+      const updateData = {
+        username: 'test2',
+        email: 'test2@example.com',
+      }
+      //act
+      const result = await userModel.update(documentId, updateData)
+      //assert
+      expect(result).toBeTruthy()
+    })
+    it('should return false if doc not found', async () => {
+      //arrange
+      const userModel = new User(db)
+      const updateData = {
+        username: 'test2',
+        email: '',
+      }
+      //act
+      const result = await userModel.update(
+        '66213e02209b99d473d966f2',
+        updateData,
+      )
+      //assert
+      expect(result).toBeFalsy()
+    })
+
+    it('should return false if error', async () => {
+      //arrange
+      const userModel = new User(db)
+      const updateData = {
+        username: 'test2',
+        email: 'test111@example.com',
+      }
+      jest
+        .spyOn(userModel['collection'], 'updateOne')
+        .mockImplementationOnce(() => {
+          return Promise.reject(new Error('mock error'))
+        })
+      //act
+      const result = await userModel.update(documentId, updateData)
+      //assert
+      expect(result).toBeFalsy()
+    })
+  })
   describe('find tests', () => {
     let documentId: string
     beforeEach(async () => {
@@ -88,15 +163,14 @@ describe('User Model', () => {
     })
 
     it('should findById return null if error', async () => {
-      //act
+      //arrange
       const userModel = new User(db)
-
-      // findByIdをエラーになるようにモック化
       jest
         .spyOn(userModel['collection'], 'findOne')
         .mockImplementationOnce(() => {
           return Promise.reject(new Error('mock error'))
         })
+      // act
       const result = await userModel.findById('abcdefg')
 
       //assert

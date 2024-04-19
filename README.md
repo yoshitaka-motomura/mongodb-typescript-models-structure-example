@@ -16,7 +16,7 @@ The module used is `node-mongodb-native`.
   Delete a document by ObjectId
 - [ ] deleteAll <br>
   Delete all documents in the collection.
-- [ ] update <br>
+- [x] update <br>
   Update a document by ObjectId
 
 ## requirements
