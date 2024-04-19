@@ -14,18 +14,14 @@ import pluralize from 'pluralize'
  * Abstract class representing an application model.
  * @template T - The type of the document.
  */
-export abstract class AppModel<T extends Document>
-  implements BaseModelInterface<T>
-{
+export abstract class AppModel<T extends Document> implements BaseModelInterface<T> {
   // The collection to interact with.
   protected collection: Collection<T & Document>
   public static collectionName: string
 
   constructor(db: Db) {
     const className = this.constructor.name.toLocaleLowerCase()
-    const collectionName =
-      (this.constructor as typeof AppModel<T>).collectionName ||
-      pluralize(className)
+    const collectionName = (this.constructor as typeof AppModel<T>).collectionName || pluralize(className)
     this.collection = db.collection<T & Document>(collectionName)
   }
 
@@ -34,9 +30,7 @@ export abstract class AppModel<T extends Document>
    * @param data - The data for the new document.
    * @returns A promise that resolves to the created document or false if an error occurred.
    */
-  async create(
-    data: Omit<T, '_id' | 'createdAt' | 'updatedAt'>,
-  ): Promise<T | boolean> {
+  async create(data: Omit<T, '_id' | 'createdAt' | 'updatedAt'>): Promise<T | boolean> {
     try {
       const now = new Date()
       const insertData: OptionalUnlessRequiredId<T> = {
@@ -59,9 +53,7 @@ export abstract class AppModel<T extends Document>
    */
   async findById(id: string): Promise<T | null> {
     try {
-      const filter: Filter<T & Document> = { _id: new ObjectId(id) } as Filter<
-        T & Document
-      >
+      const filter: Filter<T & Document> = { _id: new ObjectId(id) } as Filter<T & Document>
       const result = await this.collection.findOne(filter)
       return result as T | null
     } catch (error) {
@@ -89,7 +81,7 @@ export abstract class AppModel<T extends Document>
   async update(
     id: string,
     data: Partial<Omit<T, '_id' | 'updatedAt' | 'createdAt'>>,
-    upsert: boolean = false,
+    upsert: boolean = false
   ): Promise<boolean> {
     try {
       const now = new Date()
@@ -103,7 +95,7 @@ export abstract class AppModel<T extends Document>
       const result = await this.collection.updateOne(
         { _id: new ObjectId(id) as WithId<T & Document>['_id'] },
         { $set: updateData as unknown as MatchKeysAndValues<T & Document> },
-        { upsert: upsert },
+        { upsert: upsert }
       )
       if (upsert && result.upsertedCount) return true
       return !!result.modifiedCount

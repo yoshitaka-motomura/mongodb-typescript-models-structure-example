@@ -27,9 +27,7 @@ describe('User Model', () => {
       const userModel = new User(db)
 
       // Assert
-      expect(userModel['collection'].collectionName).toBe(
-        expectedCollectionName,
-      )
+      expect(userModel['collection'].collectionName).toBe(expectedCollectionName)
     })
 
     it('should initialize the collection with the pluralized class name', () => {
@@ -65,9 +63,7 @@ describe('User Model', () => {
     it('should return false when an error occurs', async () => {
       // arrange
       const userModel = new User(db)
-      jest
-        .spyOn(userModel['collection'], 'insertOne')
-        .mockRejectedValueOnce({ acknowledged: false })
+      jest.spyOn(userModel['collection'], 'insertOne').mockRejectedValueOnce({ acknowledged: false })
 
       // act
       const result = await userModel.create({
@@ -86,7 +82,7 @@ describe('User Model', () => {
           acknowledged: false,
           insertedId: new ObjectId(),
           insertedCount: 0,
-        }) as any,
+        }) as any
       )
 
       // act
@@ -133,10 +129,7 @@ describe('User Model', () => {
         email: '',
       }
       //act
-      const result = await userModel.update(
-        '66213e02209b99d473d966f2',
-        updateData,
-      )
+      const result = await userModel.update('66213e02209b99d473d966f2', updateData)
       //assert
       expect(result).toBeFalsy()
     })
@@ -148,11 +141,9 @@ describe('User Model', () => {
         username: 'test2',
         email: 'test111@example.com',
       }
-      jest
-        .spyOn(userModel['collection'], 'updateOne')
-        .mockImplementationOnce(() => {
-          return Promise.reject(new Error('mock error'))
-        })
+      jest.spyOn(userModel['collection'], 'updateOne').mockImplementationOnce(() => {
+        return Promise.reject(new Error('mock error'))
+      })
       //act
       const result = await userModel.update(documentId, updateData)
       //assert
@@ -225,11 +216,9 @@ describe('User Model', () => {
     it('should findById return null if error', async () => {
       //arrange
       const userModel = new User(db)
-      jest
-        .spyOn(userModel['collection'], 'findOne')
-        .mockImplementationOnce(() => {
-          return Promise.reject(new Error('mock error'))
-        })
+      jest.spyOn(userModel['collection'], 'findOne').mockImplementationOnce(() => {
+        return Promise.reject(new Error('mock error'))
+      })
       // act
       const result = await userModel.findById('abcdefg')
 
@@ -270,11 +259,9 @@ describe('User Model', () => {
     it('should return false if error', async () => {
       //arrange
       const userModel = new User(db)
-      jest
-        .spyOn(userModel['collection'], 'deleteOne')
-        .mockImplementationOnce(() => {
-          return Promise.reject(new Error('mock error'))
-        })
+      jest.spyOn(userModel['collection'], 'deleteOne').mockImplementationOnce(() => {
+        return Promise.reject(new Error('mock error'))
+      })
       //act
       const result = await userModel.delete(documentId)
       //assert
@@ -285,9 +272,7 @@ describe('User Model', () => {
       const userModel = new User(db)
       jest
         .spyOn(userModel['collection'], 'deleteOne')
-        .mockImplementationOnce(() =>
-          Promise.resolve({ acknowledged: false, deletedCount: 0 }),
-        )
+        .mockImplementationOnce(() => Promise.resolve({ acknowledged: false, deletedCount: 0 }))
       //act
       const result = await userModel.delete(documentId)
       //assert
@@ -306,9 +291,7 @@ describe('User Model', () => {
       const userModel = new User(db)
       jest
         .spyOn(userModel['collection'], 'deleteMany')
-        .mockImplementationOnce(() =>
-          Promise.resolve({ acknowledged: false, deletedCount: 0 }),
-        )
+        .mockImplementationOnce(() => Promise.resolve({ acknowledged: false, deletedCount: 0 }))
       //act
       const result = await userModel.destroy()
       //assert
