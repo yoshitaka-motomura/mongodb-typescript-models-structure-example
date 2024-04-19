@@ -1,5 +1,6 @@
 # Mongodb with typescript Models Structure Example
 [![Node.js Unit Tests](https://github.com/yoshitaka-motomura/mongodb-typescript-models-structure-example/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/yoshitaka-motomura/mongodb-typescript-models-structure-example/actions/workflows/test.yml)
+[![Coverage Status](https://coveralls.io/repos/github/yoshitaka-motomura/mongodb-typescript-models-structure-example/badge.svg?branch=main)](https://coveralls.io/github/yoshitaka-motomura/mongodb-typescript-models-structure-example?branch=main)
 
 ## Description
 This repository is a sample of the structure of defining a mongodb model in typescript.
