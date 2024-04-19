@@ -1,4 +1,4 @@
-import { MongoClient, Db } from 'mongodb'
+import { MongoClient, Db, ObjectId } from 'mongodb'
 import { User, UserI } from './User'
 import MockDate from 'mockdate'
 describe('User Model', () => {
@@ -35,6 +35,26 @@ describe('User Model', () => {
       jest
         .spyOn(userModel['collection'], 'insertOne')
         .mockRejectedValueOnce({ acknowledged: false })
+
+      // act
+      const result = await userModel.create({
+        username: 'test_user',
+        email: 'test@example.com',
+      })
+
+      // assert
+      expect(result).toBe(false)
+    })
+    it('should return false when acknowledged is false', async () => {
+      // arrange
+      const userModel = new User(db)
+      jest.spyOn(userModel['collection'], 'insertOne').mockResolvedValueOnce(
+        Promise.resolve({
+          acknowledged: false,
+          insertedId: new ObjectId(),
+          insertedCount: 0,
+        }) as any,
+      )
 
       // act
       const result = await userModel.create({
@@ -184,5 +204,82 @@ describe('User Model', () => {
       expect(result).toBeNull()
     })
   })
-  describe('delete methods tests', () => {})
+  describe('delete methods tests', () => {
+    let documentId: string
+    beforeEach(async () => {
+      const d = await db.collection('users').insertOne({
+        username: 'test',
+        email: 'test@example',
+      })
+      if (!d.insertedId) throw new Error('documentId not found')
+      documentId = d.insertedId.toString()
+    })
+    afterEach(async () => {
+      await db.collection('users').deleteMany({})
+    })
+
+    it('should delete a doc', async () => {
+      //arrange
+      const userModel = new User(db)
+      //act
+      const result = await userModel.delete(documentId)
+      //assert
+      expect(result).toBeTruthy()
+    })
+    it('should return false if doc not found', async () => {
+      //arrange
+      const userModel = new User(db)
+      //act
+      const result = await userModel.delete('66213e02209b99d473d966f2')
+      //assert
+      expect(result).toBeFalsy()
+    })
+    it('should return false if error', async () => {
+      //arrange
+      const userModel = new User(db)
+      jest
+        .spyOn(userModel['collection'], 'deleteOne')
+        .mockImplementationOnce(() => {
+          return Promise.reject(new Error('mock error'))
+        })
+      //act
+      const result = await userModel.delete(documentId)
+      //assert
+      expect(result).toBeFalsy()
+    })
+    it('should delete doc acknowledged false', async () => {
+      //arrange
+      const userModel = new User(db)
+      jest
+        .spyOn(userModel['collection'], 'deleteOne')
+        .mockImplementationOnce(() =>
+          Promise.resolve({ acknowledged: false, deletedCount: 0 }),
+        )
+      //act
+      const result = await userModel.delete(documentId)
+      //assert
+      expect(result).toBeFalsy()
+    })
+    it('should destroy all docs', async () => {
+      //arrange
+      const userModel = new User(db)
+      //act
+      const result = await userModel.destroy()
+      //assert
+      expect(result).toBeTruthy()
+    })
+    it('should destroy all docs acknowledged false', async () => {
+      //arrange
+      const userModel = new User(db)
+      jest
+        .spyOn(userModel['collection'], 'deleteMany')
+        .mockImplementationOnce(() =>
+          Promise.resolve({ acknowledged: false, deletedCount: 0 }),
+        )
+      //act
+      const result = await userModel.destroy()
+      //assert
+      expect(result).toBeFalsy()
+    })
+  })
 })

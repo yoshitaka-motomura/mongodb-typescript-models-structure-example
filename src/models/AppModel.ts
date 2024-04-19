@@ -117,10 +117,14 @@ export abstract class AppModel<T extends Document>
    * @returns A promise that resolves to a boolean indicating whether the deletion was successful.
    */
   async delete(id: string): Promise<boolean> {
-    const result = await this.collection.deleteOne({
-      _id: new ObjectId(id),
-    } as Filter<T & Document>)
-    return result.acknowledged ? !!result.deletedCount : false
+    try {
+      const result = await this.collection.deleteOne({
+        _id: new ObjectId(id),
+      } as Filter<T & Document>)
+      return result.acknowledged ? !!result.deletedCount : false
+    } catch (error) {
+      return false
+    }
   }
 
   /**
