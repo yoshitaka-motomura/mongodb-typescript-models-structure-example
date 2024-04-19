@@ -25,7 +25,7 @@ The module used is `node-mongodb-native`.
   Fetch all documents in the collection.
 - [ ] delete <br>
   Delete a document by ObjectId
-- [ ] deleteAll <br>
+- [ ] destroy <br>
   Delete all documents in the collection.
 - [x] update <br>
   Update a document by ObjectId

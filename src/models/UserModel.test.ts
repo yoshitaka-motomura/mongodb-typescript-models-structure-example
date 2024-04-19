@@ -13,54 +13,38 @@ describe('User Model', () => {
     await connection.close()
   })
 
-  it('should insert a doc into collection', async () => {
-    //act
-    const userModel = new User(db)
-    const result = await userModel.create({
-      username: 'test',
-      email: 'test@example.com',
-    })
-    //assert
-    expect(result).toMatchObject<UserI>({
-      username: 'test',
-      email: 'test@example.com',
-      createdAt: new Date('2024-04-18T00:00:00.000Z'),
-      updatedAt: new Date('2024-04-18T00:00:00.000Z'),
-    })
-  })
-
-  it('should not insert ', async () => {
-    //act
-    const userModel = new User(db)
-
-    jest
-      .spyOn(userModel['collection'], 'insertOne')
-      .mockImplementationOnce(() => {
-        return Promise.reject(new Error('mock error'))
+  describe('create document', () => {
+    it('should insert a doc into collection', async () => {
+      //act
+      const userModel = new User(db)
+      const result = await userModel.create({
+        username: 'test',
+        email: 'test@example.com',
       })
-    const result = await userModel.create({
-      username: 'test',
-      email: 'mail',
+      //assert
+      expect(result).toMatchObject<UserI>({
+        username: 'test',
+        email: 'test@example.com',
+        createdAt: new Date('2024-04-18T00:00:00.000Z'),
+        updatedAt: new Date('2024-04-18T00:00:00.000Z'),
+      })
     })
-    //assert
-    expect(result).toBe(false)
-  })
+    it('should return false when an error occurs', async () => {
+      // arrange
+      const userModel = new User(db)
+      jest
+        .spyOn(userModel['collection'], 'insertOne')
+        .mockRejectedValueOnce({ acknowledged: false })
 
-  it('should return false when an error occurs', async () => {
-    // arrange
-    const userModel = new User(db)
-    jest
-      .spyOn(userModel['collection'], 'insertOne')
-      .mockRejectedValueOnce({ acknowledged: false })
+      // act
+      const result = await userModel.create({
+        username: 'test_user',
+        email: 'test@example.com',
+      })
 
-    // act
-    const result = await userModel.create({
-      username: 'test_user',
-      email: 'test@example.com',
+      // assert
+      expect(result).toBe(false)
     })
-
-    // assert
-    expect(result).toBe(false)
   })
   describe('collection update tests', () => {
     let documentId: string
@@ -200,4 +184,5 @@ describe('User Model', () => {
       expect(result).toBeNull()
     })
   })
+  describe('delete methods tests', () => {})
 })

@@ -8,49 +8,16 @@ import {
   WithId,
   MatchKeysAndValues,
 } from 'mongodb'
-
-/**
- * Represents a base model interface.
- * @template T - The type of the model.
- */
-interface BaseModel<T> {
-  /**
-   * Creates a new model instance.
-   * @param data - The data for the model, excluding '_id', 'createdAt', and 'updatedAt' fields.
-   * @returns A promise that resolves to the created model instance or `false` if creation fails.
-   */
-  create(data: Omit<T, '_id' | 'createdAt' | 'updatedAt'>): Promise<T | boolean>
-
-  /**
-   * Finds a model instance by its ID.
-   * @param id - The ID of the model instance to find.
-   * @returns A promise that resolves to the found model instance or `null` if not found.
-   */
-  findById(id: string): Promise<T | null>
-
-  /**
-   * Fetches all model instances.
-   * @returns A promise that resolves to an array of all model instances.
-   */
-  fetchAll(): Promise<T[]>
-
-  /* The `update` method in the `AppModel` class is used to update a document in the collection based
-  on the provided ID. Here is a breakdown of its parameters and functionality: */
-  update(id: string, data: T, upsert: boolean): Promise<boolean>
-}
-
-export type InsertData<T> = Omit<T, '_id' | 'createdAt' | 'updatedAt'> & {
-  createdAt: Date
-  updatedAt: Date
-}
+import { BaseModelInterface, InsertDataType } from './interface'
 
 /**
  * Abstract class representing an application model.
  * @template T - The type of the document.
  */
-export abstract class AppModel<T extends Document> implements BaseModel<T> {
+export abstract class AppModel<T extends Document>
+  implements BaseModelInterface<T>
+{
   protected collection: Collection<T & Document>
-
   /**
    * Constructs a new instance of the AppModel class.
    * @param db - The database connection.
@@ -70,7 +37,7 @@ export abstract class AppModel<T extends Document> implements BaseModel<T> {
   ): Promise<T | boolean> {
     try {
       const now = new Date()
-      const insertData: InsertData<T> = {
+      const insertData: InsertDataType<T> = {
         ...data,
         createdAt: now,
         updatedAt: now,
@@ -142,5 +109,26 @@ export abstract class AppModel<T extends Document> implements BaseModel<T> {
     } catch (error) {
       return false
     }
+  }
+
+  /**
+   * Deletes a document from the collection.
+   * @param id - The ID of the document to delete.
+   * @returns A promise that resolves to a boolean indicating whether the deletion was successful.
+   */
+  async delete(id: string): Promise<boolean> {
+    const result = await this.collection.deleteOne({
+      _id: new ObjectId(id),
+    } as Filter<T & Document>)
+    return result.acknowledged ? !!result.deletedCount : false
+  }
+
+  /**
+   * Deletes all documents from the collection.
+   * @returns A promise that resolves to a boolean indicating whether the operation was successful.
+   */
+  async destroy(): Promise<boolean> {
+    const result = await this.collection.deleteMany({})
+    return result.acknowledged ? !!result.deletedCount : false
   }
 }
