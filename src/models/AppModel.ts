@@ -10,6 +10,7 @@ import {
 } from 'mongodb'
 import { BaseModelInterface } from './interface'
 import pluralize from 'pluralize'
+
 /**
  * Abstract class representing an application model.
  * @template T - The type of the document.
@@ -17,8 +18,9 @@ import pluralize from 'pluralize'
 export abstract class AppModel<T extends Document> implements BaseModelInterface<T> {
   // The collection to interact with.
   protected collection: Collection<T & Document>
-  public static collectionName: string
 
+  // Set when using a collection that does not match the naming convention.
+  public static collectionName: string
   constructor(db: Db) {
     const className = this.constructor.name.toLocaleLowerCase()
     const collectionName = (this.constructor as typeof AppModel<T>).collectionName || pluralize(className)

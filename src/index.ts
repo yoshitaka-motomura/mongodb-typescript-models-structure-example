@@ -4,9 +4,13 @@ const url = 'mongodb://localhost:27017'
 
 ;(async () => {
   const db = await connection(url)
-  const userModel = new User(db)
-  const r = await userModel.findById('66213e02209b99d473d966f2')
-
-  // eslint-disable-next-line no-console
-  console.log(r)
+  const user = new User(db.db)
+  const session = db.client.startSession()
+  session.startTransaction()
+  const result = await user.create({
+    username: 'test_user',
+    email: 'test@example.com',
+  })
+  await session.commitTransaction()
+  session.endSession()
 })()
